@@ -1,0 +1,27 @@
+# --- NODE / BACKEND ---
+node_modules/
+.env
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dist/
+build/
+coverage/
+
+# --- ANGULAR / FRONTEND ---
+/frontend/node_modules/
+/frontend/dist/
+/frontend/.angular/cache/
+/frontend/.env
+
+# --- SISTEMA / EDITOR ---
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
+
+# --- BACKUP / TEMPORAL ---
+*.tmp
+*.bak
+*.swp
