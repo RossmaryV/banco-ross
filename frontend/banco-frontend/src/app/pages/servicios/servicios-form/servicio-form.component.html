@@ -1,0 +1,80 @@
+<div class="servicio-form-page">
+  <h1 *ngIf="!esEdicion">Nuevo Servicio</h1>
+  <h1 *ngIf="esEdicion">Editar Servicio</h1>
+
+  <div *ngIf="cargando" class="info">Cargando datos...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="!cargando">
+    <div class="form-grid">
+      <div class="form-group full">
+        <label>Nombre del servicio</label>
+        <input formControlName="nombre_servicio" type="text" />
+        <div
+          class="errores"
+          *ngIf="form.get('nombre_servicio')?.touched"
+        >
+          <small *ngIf="tieneError('nombre_servicio', 'required')">
+            El nombre es obligatorio.
+          </small>
+          <small *ngIf="tieneError('nombre_servicio', 'maxlength')">
+            Máximo 150 caracteres.
+          </small>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Código</label>
+        <input formControlName="codigo_servicio" type="text" />
+        <div
+          class="errores"
+          *ngIf="form.get('codigo_servicio')?.touched"
+        >
+          <small *ngIf="tieneError('codigo_servicio', 'required')">
+            El código es obligatorio.
+          </small>
+          <small *ngIf="tieneError('codigo_servicio', 'maxlength')">
+            Máximo 50 caracteres.
+          </small>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Tipo de servicio</label>
+        <select formControlName="tipo_servicio">
+          <option value="" disabled>Seleccionar...</option>
+          <option *ngFor="let t of tipos" [value]="t">
+            {{ t }}
+          </option>
+        </select>
+        <div
+          class="errores"
+          *ngIf="form.get('tipo_servicio')?.touched"
+        >
+          <small *ngIf="tieneError('tipo_servicio', 'required')">
+            El tipo es obligatorio.
+          </small>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Estado</label>
+        <select formControlName="estado">
+          <option *ngFor="let e of estados" [value]="e">
+            {{ e }}
+          </option>
+        </select>
+      </div>
+    </div>
+
+    <div class="acciones">
+      <button type="button" class="btn-cancelar" (click)="cancelar()">
+        Cancelar
+      </button>
+
+      <button type="submit" class="btn-guardar" [disabled]="guardando">
+        {{ guardando ? 'Guardando...' : 'Guardar' }}
+      </button>
+    </div>
+  </form>
+</div>

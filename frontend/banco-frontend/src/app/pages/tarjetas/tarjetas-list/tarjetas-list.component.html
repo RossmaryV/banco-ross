@@ -1,0 +1,44 @@
+
+<div class="tarjetas-page">
+  <h1>Tarjetas</h1>
+
+  <button class="btn-nuevo" routerLink="/tarjetas/nuevo">
+    + Nueva Tarjeta
+  </button>
+
+  <div *ngIf="loading" class="info">Cargando tarjetas...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <table *ngIf="!loading && !error" class="tarjetas-table">
+    <thead>
+      <tr>
+        <th>Nro. Tarjeta</th>
+        <th>Cuenta ID</th>
+        <th>Tipo</th>
+        <th>Emisión</th>
+        <th>Vencimiento</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let t of tarjetas">
+        <td>{{ t.numero_tarjeta }}</td>
+        <td>{{ t.cuenta_id }}</td>
+        <td>{{ t.tipo_tarjeta }}</td>
+        <td>{{ t.fecha_emision | date: 'yyyy-MM-dd' }}</td>
+        <td>{{ t.fecha_vencimiento | date: 'yyyy-MM-dd' }}</td>
+        <td>{{ t.estado }}</td>
+        <td>
+          <button
+            class="btn-editar"
+            [routerLink]="['/tarjetas', t.id, 'editar']"
+          >
+            Editar
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

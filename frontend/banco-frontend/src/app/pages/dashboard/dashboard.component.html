@@ -1,0 +1,19 @@
+<div class="dashboard-page">
+  <section class="hero">
+    <h1>FOMENTANDO TU DESARROLLO</h1>
+    <p>Panel principal del Banco Nacional de Fomento</p>
+  </section>
+
+  <section class="cards-grid">
+    <article
+      class="card"
+      *ngFor="let c of cards"
+      [routerLink]="c.ruta"
+      tabindex="0"
+    >
+      <div class="card-icon">{{ c.icono }}</div>
+      <h2>{{ c.titulo }}</h2>
+      <p>{{ c.descripcion }}</p>
+    </article>
+  </section>
+</div>

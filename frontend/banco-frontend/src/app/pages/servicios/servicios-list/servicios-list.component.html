@@ -1,0 +1,39 @@
+<div class="servicios-page">
+  <h1>Servicios</h1>
+
+  <button class="btn-nuevo" routerLink="/servicios/nuevo">
+    + Nuevo Servicio
+  </button>
+
+  <div *ngIf="loading" class="info">Cargando servicios...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <table *ngIf="!loading && !error" class="servicios-table">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Código</th>
+        <th>Tipo</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let s of servicios">
+        <td>{{ s.nombre_servicio }}</td>
+        <td>{{ s.codigo_servicio }}</td>
+        <td>{{ s.tipo_servicio }}</td>
+        <td>{{ s.estado }}</td>
+        <td>
+          <button
+            class="btn-editar"
+            [routerLink]="['/servicios', s.id, 'editar']"
+          >
+            Editar
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

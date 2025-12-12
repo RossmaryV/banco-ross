@@ -1,0 +1,48 @@
+<div class="login-page">
+  <div class="login-card">
+    <h1>Banco BNF</h1>
+    <h2>Ingreso al sistema</h2>
+
+    <p class="subtitle">
+      Ingresá con tu usuario interno para acceder al panel de gestión.
+    </p>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label>Usuario</label>
+        <input formControlName="username" type="text" />
+        <div class="errores" *ngIf="form.get('username')?.touched">
+          <small *ngIf="tieneError('username', 'required')">
+            El usuario es obligatorio.
+          </small>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input formControlName="password" type="password" />
+        <div class="errores" *ngIf="form.get('password')?.touched">
+          <small *ngIf="tieneError('password', 'required')">
+            La contraseña es obligatoria.
+          </small>
+          <small *ngIf="tieneError('password', 'minlength')">
+            Mínimo 4 caracteres.
+          </small>
+        </div>
+      </div>
+
+      <div *ngIf="error" class="error">
+        {{ error }}
+      </div>
+
+      <button type="submit" [disabled]="cargando">
+        {{ cargando ? 'Verificando...' : 'Ingresar' }}
+      </button>
+    </form>
+
+    <p class="hint">
+      Uso interno del banco. Si olvidaste tu usuario, contactá al
+      administrador.
+    </p>
+  </div>
+</div>

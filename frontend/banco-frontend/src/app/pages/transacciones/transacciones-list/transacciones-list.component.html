@@ -1,0 +1,38 @@
+<div class="transacciones-page">
+  <h1>Transacciones</h1>
+
+  <button class="btn-nuevo" routerLink="/transacciones/nuevo">
+    + Nueva Transacción
+  </button>
+
+  <div *ngIf="loading" class="info">Cargando transacciones...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <table *ngIf="!loading && !error" class="transacciones-table">
+    <thead>
+      <tr>
+        <th>Fecha</th>
+        <th>Tipo</th>
+        <th>Cuenta origen</th>
+        <th>Cuenta destino</th>
+        <th>Monto</th>
+        <th>Moneda</th>
+        <th>Estado</th>
+        <th>Descripción</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let t of transacciones">
+        <td>{{ t.fecha_hora_transaccion | date: 'yyyy-MM-dd HH:mm' }}</td>
+        <td>{{ t.tipo_transaccion }}</td>
+        <td>{{ t.cuenta_origen_id }}</td>
+        <td>{{ t.cuenta_destino_id || '-' }}</td>
+        <td>{{ t.monto }}</td>
+        <td>{{ t.moneda }}</td>
+        <td>{{ t.estado }}</td>
+        <td>{{ t.descripcion || '-' }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

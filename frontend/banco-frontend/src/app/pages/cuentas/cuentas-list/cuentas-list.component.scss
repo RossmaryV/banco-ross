@@ -1,0 +1,78 @@
+@use 'sass:color';
+
+$gold: #d4af37;
+$dark: #121212;
+$gray: #1e1e1e;
+$text: #f5f5f5;
+
+.cuentas-page {
+  padding: 2rem;
+  background: linear-gradient(135deg, $dark, #1a1a1a);
+  min-height: 100vh;
+  color: $text;
+
+  h1 {
+    color: $gold;
+    letter-spacing: 0.05em;
+    margin-bottom: 1.5rem;
+    text-transform: uppercase;
+  }
+
+  .btn-nuevo {
+    background: $gold;
+    color: $dark;
+    border: none;
+    padding: 0.7rem 1rem;
+    border-radius: 5px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-bottom: 1.5rem;
+
+    &:hover {
+      background: color.adjust($gold, $lightness: 10%);
+    }
+  }
+
+  .cuentas-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: $gray;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+
+    th,
+    td {
+      padding: 0.8rem 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    thead {
+      background: #000;
+
+      th {
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+    }
+
+    tbody tr:hover {
+      background: rgba(212, 175, 55, 0.08);
+    }
+  }
+
+  .btn-editar {
+    padding: 0.4rem 0.7rem;
+    background: none;
+    border: 1px solid $gold;
+    border-radius: 5px;
+    color: $gold;
+    cursor: pointer;
+    font-size: 0.8rem;
+
+    &:hover {
+      background: $gold;
+      color: #000;
+    }
+  }
+}

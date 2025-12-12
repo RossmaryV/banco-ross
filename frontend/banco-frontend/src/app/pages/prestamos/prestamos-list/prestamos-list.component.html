@@ -1,0 +1,45 @@
+<div class="prestamos-page">
+  <h1>Préstamos</h1>
+
+  <button class="btn-nuevo" routerLink="/prestamos/nuevo">
+    + Nuevo Préstamo
+  </button>
+
+  <div *ngIf="loading" class="info">Cargando préstamos...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <table *ngIf="!loading && !error" class="prestamos-table">
+    <thead>
+      <tr>
+        <th>Cliente ID</th>
+        <th>Cuenta ID</th>
+        <th>Monto aprobado</th>
+        <th>Tasa %</th>
+        <th>Plazo (meses)</th>
+        <th>Cuota mensual</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let p of prestamos">
+        <td>{{ p.cliente_id }}</td>
+        <td>{{ p.cuenta_id }}</td>
+        <td>{{ p.monto_aprobado ?? p.monto_solicitado }}</td>
+        <td>{{ p.tasa_interes }}</td>
+        <td>{{ p.plazo_meses }}</td>
+        <td>{{ p.cuota_mensual }}</td>
+        <td>{{ p.estado }}</td>
+        <td>
+          <button
+            class="btn-editar"
+            [routerLink]="['/prestamos', p.id, 'editar']"
+          >
+            Editar
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

@@ -1,0 +1,45 @@
+
+
+<div class="cuentas-page">
+  <h1>Cuentas Bancarias</h1>
+
+  <button class="btn-nuevo" routerLink="/cuentas/nuevo">
+    + Nueva Cuenta
+  </button>
+
+  <div *ngIf="loading" class="info">Cargando cuentas...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <table *ngIf="!loading && !error" class="cuentas-table">
+    <thead>
+      <tr>
+        <th>Nro. Cuenta</th>
+        <th>Cliente ID</th>
+        <th>Tipo</th>
+        <th>Moneda</th>
+        <th>Saldo actual</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let c of cuentas">
+        <td>{{ c.numero_cuenta }}</td>
+        <td>{{ c.cliente_id }}</td>
+        <td>{{ c.tipo_cuenta }}</td>
+        <td>{{ c.moneda }}</td>
+        <td>{{ c.saldo_actual }}</td>
+        <td>{{ c.estado }}</td>
+        <td>
+          <button
+            class="btn-editar"
+            [routerLink]="['/cuentas', c.id, 'editar']"
+          >
+            Editar
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

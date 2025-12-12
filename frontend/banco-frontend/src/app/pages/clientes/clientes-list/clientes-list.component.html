@@ -1,0 +1,40 @@
+
+<div class="clientes-page">
+  <h1>Clientes</h1>
+
+  <button class="btn-nuevo" routerLink="/clientes/nuevo">
+    + Nuevo Cliente
+  </button>
+
+  <div *ngIf="loading" class="info">Cargando clientes...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <table *ngIf="!loading && !error" class="clientes-table">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Documento</th>
+        <th>Ciudad</th>
+        <th>Teléfono</th>
+        <th>Estado</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let c of clientes">
+        <td>{{ c.nombres }} {{ c.apellidos }}</td>
+        <td>{{ c.tipo_identificacion }} {{ c.numero_identificacion }}</td>
+        <td>{{ c.ciudad || '-' }}</td>
+        <td>{{ c.telefono || '-' }}</td>
+        <td>{{ c.estado }}</td>
+
+        <td>
+          <button class="btn-editar" [routerLink]="['/clientes', c.id, 'editar']">
+            Editar
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

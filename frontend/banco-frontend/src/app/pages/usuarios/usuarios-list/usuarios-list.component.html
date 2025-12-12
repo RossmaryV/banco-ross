@@ -1,0 +1,49 @@
+<div class="usuarios-page">
+  <h1>Usuarios del sistema</h1>
+
+  <button class="btn-nuevo" routerLink="/usuarios/nuevo">
+    + Nuevo Usuario
+  </button>
+
+  <div *ngIf="loading" class="info">Cargando usuarios...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <table *ngIf="!loading && !error" class="usuarios-table">
+    <thead>
+      <tr>
+        <th>Username</th>
+        <th>Cliente ID</th>
+        <th>Rol ID</th>
+        <th>Estado</th>
+        <th>Intentos fallidos</th>
+        <th>Último acceso</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let u of usuarios">
+        <td>{{ u.username }}</td>
+        <td>{{ u.cliente_id || '-' }}</td>
+        <td>{{ u.rol_id }}</td>
+        <td>{{ u.estado }}</td>
+        <td>{{ u.intentos_fallidos }}</td>
+        <td>
+          {{
+            u.fecha_ultimo_acceso
+              ? (u.fecha_ultimo_acceso | date : 'yyyy-MM-dd HH:mm')
+              : '-'
+          }}
+        </td>
+        <td>
+          <button
+            class="btn-editar"
+            [routerLink]="['/usuarios', u.id, 'editar']"
+          >
+            Editar
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

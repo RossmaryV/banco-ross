@@ -1,0 +1,128 @@
+<p>cuenta-form works!</p>
+
+<div class="cuenta-form-page">
+  <h1 *ngIf="!esEdicion">Nueva Cuenta</h1>
+  <h1 *ngIf="esEdicion">Editar Cuenta</h1>
+
+  <div *ngIf="cargando" class="info">Cargando datos...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="!cargando">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>ID Cliente</label>
+        <input formControlName="cliente_id" type="text" />
+        <div class="errores" *ngIf="form.get('cliente_id')?.touched">
+          <small *ngIf="tieneError('cliente_id', 'required')">
+            El cliente es obligatorio.
+          </small>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Número de cuenta</label>
+        <input formControlName="numero_cuenta" type="text" />
+        <div class="errores" *ngIf="form.get('numero_cuenta')?.touched">
+          <small *ngIf="tieneError('numero_cuenta', 'required')">
+            El número de cuenta es obligatorio.
+          </small>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Tipo de cuenta</label>
+        <select formControlName="tipo_cuenta">
+          <option value="" disabled>Seleccionar...</option>
+          <option *ngFor="let t of tiposCuenta" [value]="t">
+            {{ t | titlecase }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Moneda</label>
+        <select formControlName="moneda">
+          <option value="" disabled>Seleccionar...</option>
+          <option *ngFor="let m of monedas" [value]="m">
+            {{ m }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Saldo actual</label>
+        <input formControlName="saldo_actual" type="number" step="0.01" />
+        <div class="errores" *ngIf="form.get('saldo_actual')?.touched">
+          <small *ngIf="tieneError('saldo_actual', 'required')">
+            El saldo actual es obligatorio.
+          </small>
+          <small *ngIf="tieneError('saldo_actual', 'min')">
+            El saldo no puede ser negativo.
+          </small>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Saldo disponible</label>
+        <input formControlName="saldo_disponible" type="number" step="0.01" />
+        <div class="errores" *ngIf="form.get('saldo_disponible')?.touched">
+          <small *ngIf="tieneError('saldo_disponible', 'required')">
+            El saldo disponible es obligatorio.
+          </small>
+          <small *ngIf="tieneError('saldo_disponible', 'min')">
+            El saldo no puede ser negativo.
+          </small>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Fecha de apertura</label>
+        <input formControlName="fecha_apertura" type="date" />
+      </div>
+
+      <div class="form-group">
+        <label>Fecha de cierre</label>
+        <input formControlName="fecha_cierre" type="date" />
+      </div>
+
+      <div class="form-group">
+        <label>Estado</label>
+        <select formControlName="estado">
+          <option *ngFor="let e of estados" [value]="e">
+            {{ e }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Límite de transferencia</label>
+        <input
+          formControlName="limite_transferencia"
+          type="number"
+          step="0.01"
+        />
+        <div
+          class="errores"
+          *ngIf="form.get('limite_transferencia')?.touched"
+        >
+          <small *ngIf="tieneError('limite_transferencia', 'required')">
+            El límite es obligatorio.
+          </small>
+          <small *ngIf="tieneError('limite_transferencia', 'min')">
+            No puede ser negativo.
+          </small>
+        </div>
+      </div>
+    </div>
+
+    <div class="acciones">
+      <button type="button" class="btn-cancelar" (click)="cancelar()">
+        Cancelar
+      </button>
+
+      <button type="submit" class="btn-guardar" [disabled]="guardando">
+        {{ guardando ? 'Guardando...' : 'Guardar' }}
+      </button>
+    </div>
+  </form>
+</div>

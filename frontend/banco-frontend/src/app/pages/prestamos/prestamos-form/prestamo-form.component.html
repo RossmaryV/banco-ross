@@ -1,0 +1,127 @@
+<div class="prestamo-form-page">
+  <h1 *ngIf="!esEdicion">Nuevo Préstamo</h1>
+  <h1 *ngIf="esEdicion">Editar Préstamo</h1>
+
+  <div *ngIf="cargando" class="info">Cargando datos...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="!cargando">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>ID Cliente</label>
+        <input formControlName="cliente_id" type="text" />
+        <div class="errores" *ngIf="form.get('cliente_id')?.touched">
+          <small *ngIf="tieneError('cliente_id', 'required')">
+            El cliente es obligatorio.
+          </small>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>ID Cuenta</label>
+        <input formControlName="cuenta_id" type="text" />
+        <div class="errores" *ngIf="form.get('cuenta_id')?.touched">
+          <small *ngIf="tieneError('cuenta_id', 'required')">
+            La cuenta es obligatoria.
+          </small>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Monto solicitado</label>
+        <input formControlName="monto_solicitado" type="number" step="0.01" />
+        <div
+          class="errores"
+          *ngIf="form.get('monto_solicitado')?.touched"
+        >
+          <small *ngIf="tieneError('monto_solicitado', 'required')">
+            El monto solicitado es obligatorio.
+          </small>
+          <small *ngIf="tieneError('monto_solicitado', 'min')">
+            Debe ser mayor a cero.
+          </small>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Monto aprobado</label>
+        <input formControlName="monto_aprobado" type="number" step="0.01" />
+        <div class="errores" *ngIf="form.get('monto_aprobado')?.touched">
+          <small *ngIf="tieneError('monto_aprobado', 'min')">
+            No puede ser negativo.
+          </small>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Tasa de interés anual (%)</label>
+        <input formControlName="tasa_interes" type="number" step="0.01" />
+        <div class="errores" *ngIf="form.get('tasa_interes')?.touched">
+          <small *ngIf="tieneError('tasa_interes', 'required')">
+            La tasa es obligatoria.
+          </small>
+          <small *ngIf="tieneError('tasa_interes', 'min')">
+            No puede ser negativa.
+          </small>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Plazo (meses)</label>
+        <input formControlName="plazo_meses" type="number" />
+        <div class="errores" *ngIf="form.get('plazo_meses')?.touched">
+          <small *ngIf="tieneError('plazo_meses', 'required')">
+            El plazo es obligatorio.
+          </small>
+          <small *ngIf="tieneError('plazo_meses', 'min')">
+            Debe ser al menos 1 mes.
+          </small>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Cuota mensual (estimada)</label>
+        <input formControlName="cuota_mensual" type="number" step="0.01" />
+      </div>
+
+      <div class="form-group">
+        <label>Fecha solicitud</label>
+        <input formControlName="fecha_solicitud" type="date" />
+      </div>
+
+      <div class="form-group">
+        <label>Fecha aprobación</label>
+        <input formControlName="fecha_aprobacion" type="date" />
+      </div>
+
+      <div class="form-group">
+        <label>Fecha vencimiento</label>
+        <input formControlName="fecha_vencimiento" type="date" />
+      </div>
+
+      <div class="form-group">
+        <label>Estado</label>
+        <select formControlName="estado">
+          <option *ngFor="let e of estados" [value]="e">
+            {{ e }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group full">
+        <label>Motivo de rechazo (si aplica)</label>
+        <input formControlName="motivo_rechazo" type="text" />
+      </div>
+    </div>
+
+    <div class="acciones">
+      <button type="button" class="btn-cancelar" (click)="cancelar()">
+        Cancelar
+      </button>
+
+      <button type="submit" class="btn-guardar" [disabled]="guardando">
+        {{ guardando ? 'Guardando...' : 'Guardar' }}
+      </button>
+    </div>
+  </form>
+</div>

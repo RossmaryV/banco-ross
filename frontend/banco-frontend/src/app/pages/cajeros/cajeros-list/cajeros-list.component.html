@@ -1,0 +1,51 @@
+<div class="cajeros-page">
+  <h1>Cajeros Automáticos</h1>
+
+  <button class="btn-nuevo" routerLink="/cajeros/nuevo">
+    + Nuevo Cajero
+  </button>
+
+  <div *ngIf="loading" class="info">Cargando cajeros...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <table *ngIf="!loading && !error" class="cajeros-table">
+    <thead>
+      <tr>
+        <th>Código</th>
+        <th>Ubicación</th>
+        <th>Saldo efectivo</th>
+        <th>Estado</th>
+        <th>Último abastecimiento</th>
+        <th>Último mantenimiento</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let c of cajeros">
+        <td>{{ c.codigo_cajero }}</td>
+        <td>{{ c.ubicacion }}</td>
+        <td>{{ c.saldo_efectivo_disponible | number: '1.0-0' }}</td>
+        <td>{{ c.estado }}</td>
+        <td>
+          {{ c.fecha_ultimo_abastecimiento
+            ? (c.fecha_ultimo_abastecimiento | date: 'yyyy-MM-dd HH:mm')
+            : '-' }}
+        </td>
+        <td>
+          {{ c.fecha_ultimo_mantenimiento
+            ? (c.fecha_ultimo_mantenimiento | date: 'yyyy-MM-dd HH:mm')
+            : '-' }}
+        </td>
+        <td>
+          <button
+            class="btn-editar"
+            [routerLink]="['/cajeros', c.id, 'editar']"
+          >
+            Editar
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>

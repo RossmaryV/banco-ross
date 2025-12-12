@@ -1,0 +1,107 @@
+<div class="cajero-form-page">
+  <h1 *ngIf="!esEdicion">Nuevo Cajero</h1>
+  <h1 *ngIf="esEdicion">Editar Cajero</h1>
+
+  <div *ngIf="cargando" class="info">Cargando datos...</div>
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="!cargando">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Código del cajero</label>
+        <input formControlName="codigo_cajero" type="text" />
+        <div class="errores" *ngIf="form.get('codigo_cajero')?.touched">
+          <small *ngIf="tieneError('codigo_cajero', 'required')">
+            El código es obligatorio.
+          </small>
+          <small *ngIf="tieneError('codigo_cajero', 'maxlength')">
+            Máximo 50 caracteres.
+          </small>
+        </div>
+      </div>
+
+      <div class="form-group full">
+        <label>Ubicación</label>
+        <input formControlName="ubicacion" type="text" />
+        <div class="errores" *ngIf="form.get('ubicacion')?.touched">
+          <small *ngIf="tieneError('ubicacion', 'required')">
+            La ubicación es obligatoria.
+          </small>
+          <small *ngIf="tieneError('ubicacion', 'maxlength')">
+            Máximo 255 caracteres.
+          </small>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Saldo efectivo disponible</label>
+        <input
+          formControlName="saldo_efectivo_disponible"
+          type="number"
+          min="0"
+          step="10000"
+        />
+        <div
+          class="errores"
+          *ngIf="form.get('saldo_efectivo_disponible')?.touched"
+        >
+          <small
+            *ngIf="tieneError('saldo_efectivo_disponible', 'required')"
+          >
+            El saldo es obligatorio.
+          </small>
+          <small *ngIf="tieneError('saldo_efectivo_disponible', 'min')">
+            No puede ser negativo.
+          </small>
+        </div>
+      </div>
+
+      <div class="form-group full">
+        <label>Denominaciones disponibles (JSON)</label>
+        <textarea
+          formControlName="denominaciones_disponibles"
+          rows="3"
+        ></textarea>
+        <small class="hint">
+          Ejemplo:
+          &#123;"100000":20,"50000":40,"20000":50&#125;
+        </small>
+      </div>
+
+      <div class="form-group">
+        <label>Estado</label>
+        <select formControlName="estado">
+          <option *ngFor="let e of estados" [value]="e">
+            {{ e }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>Fecha último abastecimiento</label>
+        <input
+          formControlName="fecha_ultimo_abastecimiento"
+          type="datetime-local"
+        />
+      </div>
+
+      <div class="form-group">
+        <label>Fecha último mantenimiento</label>
+        <input
+          formControlName="fecha_ultimo_mantenimiento"
+          type="datetime-local"
+        />
+      </div>
+    </div>
+
+    <div class="acciones">
+      <button type="button" class="btn-cancelar" (click)="cancelar()">
+        Cancelar
+      </button>
+
+      <button type="submit" class="btn-guardar" [disabled]="guardando">
+        {{ guardando ? 'Guardando...' : 'Guardar' }}
+      </button>
+    </div>
+  </form>
+</div>
