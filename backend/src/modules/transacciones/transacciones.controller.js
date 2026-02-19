@@ -1,5 +1,16 @@
 const transaccionesService = require('./transacciones.service');
 
+async function transferir(req, res) {
+  try {
+    const result = await transaccionesService.transferir(req.body);
+    res.status(201).json(result);
+  } catch (err) {
+    console.error('❌ Error en transferir:', err);
+    if (err.status === 400) return res.status(400).json({ message: err.message });
+    res.status(500).json({ message: 'Error al realizar transferencia' });
+  }
+}
+
 async function listarTransacciones(req, res) {
   try {
     const transacciones = await transaccionesService.obtenerTodos();
@@ -46,4 +57,5 @@ module.exports = {
   listarTransacciones,
   obtenerTransaccionPorId,
   crearTransaccion,
+  transferir,
 };

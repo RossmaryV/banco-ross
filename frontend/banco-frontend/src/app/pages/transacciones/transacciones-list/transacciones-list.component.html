@@ -26,8 +26,11 @@
       <tr *ngFor="let t of transacciones">
         <td>{{ t.fecha_hora_transaccion | date: 'yyyy-MM-dd HH:mm' }}</td>
         <td>{{ t.tipo_transaccion }}</td>
-        <td>{{ t.cuenta_origen_id }}</td>
-        <td>{{ t.cuenta_destino_id || '-' }}</td>
+        <td>{{ t.cuenta_origen_id | slice:-6 }}</td>
+<td>
+  {{ t.cuenta_destino_id ? (t.cuenta_destino_id | slice:-6) : '-' }}
+</td>
+
         <td>{{ t.monto }}</td>
         <td>{{ t.moneda }}</td>
         <td>{{ t.estado }}</td>

@@ -5,6 +5,8 @@ const transaccionesController = require('./transacciones.controller');
 // GET /api/transacciones
 router.get('/', transaccionesController.listarTransacciones);
 
+router.post('/transferir', transaccionesController.transferir);
+
 // GET /api/transacciones/:id
 router.get('/:id', transaccionesController.obtenerTransaccionPorId);
 

@@ -72,21 +72,23 @@ export class TransaccionFormComponent implements OnInit {
     referenciaCtrl?.clearValidators();
     montoCtrl?.clearValidators();
 
-    // monto casi siempre obligatorio
-    if (tipo === 'consulta') {
-      // podríamos usar un monto simbólico
-      montoCtrl?.setValidators([Validators.required, Validators.min(0.01)]);
-    } else {
-      montoCtrl?.setValidators([Validators.required, Validators.min(0.01)]);
-    }
+    // monto casi siempre obligatorio (mantengo tu lógica)
+    montoCtrl?.setValidators([Validators.required, Validators.min(0.01)]);
 
     if (tipo === 'transferencia') {
       cuentaDestinoCtrl?.setValidators([Validators.required]);
+    } else {
+      // limpieza para no enviar basura
+      cuentaDestinoCtrl?.setValue('');
     }
 
     if (tipo === 'pago_servicio') {
       servicioCtrl?.setValidators([Validators.required]);
       referenciaCtrl?.setValidators([Validators.required]);
+    } else {
+      // limpieza para no enviar basura
+      servicioCtrl?.setValue('');
+      referenciaCtrl?.setValue('');
     }
 
     cuentaDestinoCtrl?.updateValueAndValidity();
@@ -109,9 +111,28 @@ export class TransaccionFormComponent implements OnInit {
     this.guardando = true;
     this.error = null;
 
-    const valores = this.form.value as Partial<Transaccion>;
+    const valores: any = { ...this.form.value };
 
-    this.transaccionesService.createTransaccion(valores).subscribe({
+    // ✅ Normalizar tipos (IDs y monto como number)
+    valores.cuenta_origen_id = Number(valores.cuenta_origen_id);
+    valores.cuenta_destino_id = valores.cuenta_destino_id
+      ? Number(valores.cuenta_destino_id)
+      : null;
+    valores.servicio_id = valores.servicio_id ? Number(valores.servicio_id) : null;
+    valores.cajero_id = valores.cajero_id ? Number(valores.cajero_id) : null;
+    valores.monto = Number(valores.monto);
+
+    const request$ =
+      valores.tipo_transaccion === 'transferencia'
+        ? this.transaccionesService.transferir({
+            cuenta_origen_id: valores.cuenta_origen_id,
+            cuenta_destino_id: valores.cuenta_destino_id,
+            monto: valores.monto,
+            descripcion: valores.descripcion,
+          })
+        : this.transaccionesService.createTransaccion(valores as Partial<Transaccion>);
+
+    request$.subscribe({
       next: () => {
         this.guardando = false;
         window.alert('Transacción registrada correctamente');
@@ -119,8 +140,7 @@ export class TransaccionFormComponent implements OnInit {
       },
       error: (err) => {
         console.error(err);
-        this.error =
-          err?.error?.message || 'Error al registrar la transacción';
+        this.error = err?.error?.message || 'Error al registrar la transacción';
         this.guardando = false;
       },
     });

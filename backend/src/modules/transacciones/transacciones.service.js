@@ -1,4 +1,4 @@
-const { query } = require('../../db/connection');
+const { query, pool } = require('../../db/connection');
 const { randomUUID } = require('crypto');
 
 // Helpers
@@ -31,6 +31,10 @@ function crearErrorNegocio(mensaje) {
   const err = new Error(mensaje);
   err.status = 400;
   return err;
+}
+
+function generarCodigoAutorizacion() {
+  return 'BNF-' + randomUUID().slice(0, 8).toUpperCase();
 }
 
 // GET /api/transacciones
@@ -88,6 +92,7 @@ async function obtenerPorId(id) {
 }
 
 // POST /api/transacciones
+// (Tu lógica actual: sirve para depósito, retiro, pago_servicio, consulta y también transferencia "simple")
 async function crear(data) {
   const id = randomUUID();
 
@@ -114,7 +119,7 @@ async function crear(data) {
   }
 
   const montoNum = Number(monto);
-  if (!montoNum || montoNum <= 0) {
+  if (Number.isNaN(montoNum) || montoNum <= 0) {
     throw crearErrorNegocio('El monto debe ser mayor a cero');
   }
 
@@ -133,6 +138,10 @@ async function crear(data) {
     if (!cuenta_destino_id) {
       throw crearErrorNegocio('La cuenta destino es obligatoria para transferencias');
     }
+    if (String(cuenta_origen_id) === String(cuenta_destino_id)) {
+      throw crearErrorNegocio('La cuenta destino no puede ser la misma que origen');
+    }
+
     cuentaDestino = await obtenerCuentaPorId(cuenta_destino_id);
     if (!cuentaDestino) {
       throw crearErrorNegocio('La cuenta destino no existe');
@@ -200,18 +209,10 @@ async function crear(data) {
 
   // Actualizamos saldos si corresponde
   if (tipo_transaccion !== 'consulta') {
-    await actualizarSaldosCuenta(
-      cuentaOrigen.id,
-      saldoOrigen,
-      saldoDispOrigen
-    );
+    await actualizarSaldosCuenta(cuentaOrigen.id, saldoOrigen, saldoDispOrigen);
 
     if (tipo_transaccion === 'transferencia' && cuentaDestino) {
-      await actualizarSaldosCuenta(
-        cuentaDestino.id,
-        saldoDestino,
-        saldoDispDestino
-      );
+      await actualizarSaldosCuenta(cuentaDestino.id, saldoDestino, saldoDispDestino);
     }
   }
 
@@ -231,6 +232,11 @@ async function crear(data) {
       referencia_pago
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
+
+  // si no viene código, generamos para operaciones sensibles
+  if (!codigo_autorizacion && ['retiro', 'transferencia', 'pago_servicio'].includes(tipo_transaccion)) {
+    codigo_autorizacion = generarCodigoAutorizacion();
+  }
 
   const paramsInsert = [
     id,
@@ -265,8 +271,132 @@ async function crear(data) {
   };
 }
 
+/**
+ * POST /api/transacciones/transferir
+ * Transferencia interna "bien hecha" (atómica)
+ */
+async function transferir(data) {
+  const id = randomUUID();
+  const { cuenta_origen_id, cuenta_destino_id } = data;
+  const montoNum = Number(data.monto);
+  const descripcion = data.descripcion || 'Transferencia interna';
+
+  if (!cuenta_origen_id) throw crearErrorNegocio('La cuenta de origen es obligatoria');
+  if (!cuenta_destino_id) throw crearErrorNegocio('La cuenta destino es obligatoria');
+
+  if (String(cuenta_origen_id) === String(cuenta_destino_id)) {
+    throw crearErrorNegocio('La cuenta destino no puede ser la misma que origen');
+  }
+
+  if (Number.isNaN(montoNum) || montoNum <= 0) {
+    throw crearErrorNegocio('El monto debe ser mayor a cero');
+  }
+
+  let conn;
+  try {
+    conn = await pool.getConnection();
+    await conn.beginTransaction();
+
+    // Lock ordenado para evitar deadlocks
+    const a = Number(cuenta_origen_id);
+    const b = Number(cuenta_destino_id);
+    const [firstId, secondId] = a < b ? [a, b] : [b, a];
+
+    const firstRows = await conn.query(
+      `SELECT id, saldo_actual, saldo_disponible, moneda FROM cuentas WHERE id = ? FOR UPDATE`,
+      [firstId]
+    );
+    const secondRows = await conn.query(
+      `SELECT id, saldo_actual, saldo_disponible, moneda FROM cuentas WHERE id = ? FOR UPDATE`,
+      [secondId]
+    );
+
+    const c1 = firstRows[0] || null;
+    const c2 = secondRows[0] || null;
+
+    if (!c1) throw crearErrorNegocio('La cuenta de origen/destino no existe');
+    if (!c2) throw crearErrorNegocio('La cuenta de origen/destino no existe');
+
+    const origen = c1.id === a ? c1 : c2;
+    const destino = c1.id === b ? c1 : c2;
+
+    if (origen.moneda !== destino.moneda) {
+      throw crearErrorNegocio('Las cuentas deben estar en la misma moneda');
+    }
+
+    const saldoDispOrigen = Number(origen.saldo_disponible);
+    if (saldoDispOrigen < montoNum) {
+      throw crearErrorNegocio('Saldo insuficiente para transferencia');
+    }
+
+    const nuevoSaldoOrigen = Number(origen.saldo_actual) - montoNum;
+    const nuevoSaldoDispOrigen = Number(origen.saldo_disponible) - montoNum;
+
+    const nuevoSaldoDestino = Number(destino.saldo_actual) + montoNum;
+    const nuevoSaldoDispDestino = Number(destino.saldo_disponible) + montoNum;
+
+    await conn.query(
+      `UPDATE cuentas SET saldo_actual = ?, saldo_disponible = ? WHERE id = ?`,
+      [nuevoSaldoOrigen, nuevoSaldoDispOrigen, origen.id]
+    );
+
+    await conn.query(
+      `UPDATE cuentas SET saldo_actual = ?, saldo_disponible = ? WHERE id = ?`,
+      [nuevoSaldoDestino, nuevoSaldoDispDestino, destino.id]
+    );
+
+    const codigo_autorizacion = generarCodigoAutorizacion();
+
+    await conn.query(
+      `INSERT INTO transacciones (
+        id,
+        tipo_transaccion,
+        cuenta_origen_id,
+        cuenta_destino_id,
+        cajero_id,
+        servicio_id,
+        monto,
+        moneda,
+        descripcion,
+        estado,
+        codigo_autorizacion,
+        referencia_pago
+      ) VALUES (?, 'transferencia', ?, ?, NULL, NULL, ?, ?, ?, 'completada', ?, NULL)`,
+      [
+        id,
+        origen.id,
+        destino.id,
+        montoNum,
+        origen.moneda,
+        descripcion,
+        codigo_autorizacion,
+      ]
+    );
+
+    await conn.commit();
+
+    return {
+      id,
+      tipo_transaccion: 'transferencia',
+      cuenta_origen_id: String(origen.id),
+      cuenta_destino_id: String(destino.id),
+      monto: montoNum,
+      moneda: origen.moneda,
+      descripcion,
+      estado: 'completada',
+      codigo_autorizacion,
+    };
+  } catch (err) {
+    if (conn) await conn.rollback();
+    throw err;
+  } finally {
+    if (conn) conn.release();
+  }
+}
+
 module.exports = {
   obtenerTodos,
   obtenerPorId,
   crear,
+  transferir, // 👈 NUEVO
 };
